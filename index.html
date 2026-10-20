@@ -518,6 +518,15 @@ plus:'<path d="M12 5v14"/><path d="M5 12h14"/>'
 const icon=(name,cls='icon')=>`<svg class="${cls}" aria-hidden="true" viewBox="0 0 24 24">${iconPaths[name]||iconPaths.sprout}</svg>`;
 const iconPair=(name,emoji,cls='')=>`<span class="icon-pair ${cls}"><span class="emoji-only">${esc(emoji)}</span><span class="svg-only">${icon(name)}</span></span>`;
 const cleanLabel=s=>String(s||'').replace(/^[✨☕]\s*/u,'');
+const projectImageSrc=image=>{
+if(image.startsWith('data:image/')||image.startsWith('images/'))return image;
+const bundledImages={
+'701affdc0b2e0e81f9557659fb630357':'images/mochiisle.png',
+'55f0011bf67202fc5e07f843d28c84f4':'images/peny.png',
+'d306135ac7a3574271dee68f2cb1c73d':'images/esl.png'
+};
+return bundledImages[image]||'/_blob/'+image
+};
 const projectIcon=p=>/game|art|design/i.test(p.g)?'palette':/mobile|schedule/i.test(p.g)?'phone':'brief';
 const lvl=v=>v>=90?'Expert':v>=75?'Advanced':v>=55?'Intermediate':'Learning';
 const lk=v=>v>=90?'e':v>=75?'a':v>=55?'i':'l';
@@ -539,7 +548,7 @@ app.innerHTML=`
 <section id="skills"><div class="wrap"><h2>Skills</h2><div class="panel"><div class="skills">
 ${D.skills.map((s,i)=>`<div class="sk" data-l="${lk(s.v)}">${del('skills.'+i)}<span class="skill-emo">${icon(skillIcon(s.n))}</span><div class="skill-content"><div class="top">${t('skills.'+i+'.n')}<small>${lvl(s.v)}</small></div><div class="bar"><i style="width:${s.v}%"></i></div><div class="skill-rating">${skillStars(s.v)}</div></div><input class="rng ed" type="range" min="5" max="100" value="${s.v}" data-r="skills.${i}.v" aria-label="Skill level"></div>`).join('')}</div>${add('skills','Add skill')}</div></div></section>
 <section id="work"><div class="wrap"><h2>Selected work</h2><div class="grid">
-${D.projects.map((p,i)=>`<article class="card">${del('projects.'+i)}<div class="thumb">${p.i?`<img src="${p.i.startsWith('data:image/')?esc(p.i):'/_blob/'+esc(p.i)}" alt="">`:icon(projectIcon(p),'project-icon')}<span class="upw ed"><button class="up" data-up="${i}">${icon('camera')} ${p.i?'Change':'Upload'} image</button>${p.i?`<button class="up" data-rmi="${i}">Remove</button>`:''}</span></div>${t('projects.'+i+'.t','h3')}${t('projects.'+i+'.d','p')}
+${D.projects.map((p,i)=>`<article class="card">${del('projects.'+i)}<div class="thumb">${p.i?`<img src="${esc(projectImageSrc(p.i))}" alt="">`:icon(projectIcon(p),'project-icon')}<span class="upw ed"><button class="up" data-up="${i}">${icon('camera')} ${p.i?'Change':'Upload'} image</button>${p.i?`<button class="up" data-rmi="${i}">Remove</button>`:''}</span></div>${t('projects.'+i+'.t','h3')}${t('projects.'+i+'.d','p')}
 <div class="tags">${p.g.split(',').map(x=>x.trim()).filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join('')}</div>
 <div class="ed" style="margin:0 10px 12px;font-size:13px;color:var(--soft);display:none">Tags (comma separated):&nbsp;${t('projects.'+i+'.g')}</div>
 <a class="lnk" href="${esc(p.h)}" data-h="projects.${i}.h">View case study</a></article>`).join('')}</div>${add('projects','Add project')}</div></section>
