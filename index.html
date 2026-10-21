@@ -35,6 +35,7 @@ body.intro-active{overflow:hidden}
 #intro-screen{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;overflow:hidden;background:linear-gradient(145deg,#ffe3f1 0%,#fff7fb 48%,#e3f2ff 100%);opacity:1;visibility:visible;transition:opacity .45s ease,visibility .45s ease}
 #intro-screen.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
 .intro-content{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;width:100%;height:100%}
+.intro-v2-content{display:none}
 .intro-orbit{position:absolute;top:50%;left:50%;width:clamp(220px,64vw,320px);aspect-ratio:1;border:1px solid rgba(224,72,140,.2);border-radius:50%;animation:intro-orbit 12s linear infinite}
 .intro-orbit:before,.intro-orbit:after{position:absolute;content:"";width:12px;height:12px;border-radius:50%;background:#ff8fba;box-shadow:0 0 0 6px rgba(255,143,186,.15)}
 .intro-orbit:before{top:14%;left:10%}
@@ -47,7 +48,23 @@ body.intro-active{overflow:hidden}
 @keyframes intro-float{to{transform:translateY(-9px) scale(1.025)}}
 @keyframes intro-orbit{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes intro-fill{to{transform:scaleX(1)}}
+html.intro-v2-preview #intro-screen{background:#fff8fb;transition:opacity .8s ease,visibility .8s ease,background-color 1.1s ease}
+html.intro-v2-preview .intro-content:not(.intro-v2-content){display:none}
+html.intro-v2-preview .intro-v2-content{position:relative;display:block;width:100%;height:100%}
+html.intro-v2-preview .intro-v2-stage{position:absolute;inset:0;overflow:hidden}
+html.intro-v2-preview .intro-v2-image{position:absolute;top:50%;left:50%;display:block;width:clamp(100px,18vw,180px);height:auto;object-fit:contain;transform:translate(-50%,-50%)}
+html.intro-v2-preview .intro-v2-left{left:calc(50% - min(30vw,310px));width:clamp(92px,15vw,154px);animation:intro-v2-left 1.25s cubic-bezier(.55,0,.25,1) 1.25s forwards}
+html.intro-v2-preview .intro-v2-right{left:calc(50% + min(30vw,310px));width:clamp(92px,15vw,154px);animation:intro-v2-right 1.25s cubic-bezier(.55,0,.25,1) 1.25s forwards}
+html.intro-v2-preview .intro-v2-center{width:clamp(130px,21vw,210px);border-radius:8px;animation:intro-v2-center-out .65s ease 1.85s forwards}
+html.intro-v2-preview .intro-v2-final{width:clamp(220px,38vw,390px);max-height:76vh;opacity:0;animation:intro-v2-final-in 1s ease 2.05s forwards}
+html.intro-v2-preview.intro-v2-green #intro-screen{background-color:#6c9e83}
+html.intro-v2-preview .intro-v2-content .intro-progress{display:none}
+@keyframes intro-v2-left{to{left:50%;opacity:0;transform:translate(-50%,-50%) scale(.45)}}
+@keyframes intro-v2-right{to{left:50%;opacity:0;transform:translate(-50%,-50%) scale(.45)}}
+@keyframes intro-v2-center-out{to{opacity:0;transform:translate(-50%,-50%) scale(.85)}}
+@keyframes intro-v2-final-in{to{opacity:1}}
 @media(prefers-reduced-motion:reduce){.intro-orbit,.intro-logo,.intro-progress:after{animation:none}.intro-progress:after{transform:scaleX(1)}#intro-screen{transition:none}}
+@media(prefers-reduced-motion:reduce){html.intro-v2-preview .intro-v2-left,html.intro-v2-preview .intro-v2-right,html.intro-v2-preview .intro-v2-center,html.intro-v2-preview .intro-v2-final{animation:none;opacity:1}html.intro-v2-preview .intro-v2-left,html.intro-v2-preview .intro-v2-right,html.intro-v2-preview .intro-v2-center{opacity:0}html.intro-v2-preview #intro-screen{transition:none}}
 a{color:inherit}
 .wrap{max-width:1080px;margin:0 auto;padding:0 32px}
 nav{position:sticky;top:0;z-index:10;padding:14px 0}
@@ -475,12 +492,22 @@ body.esl-design nav a:focus-visible{outline-color:var(--pink)}
 }
 @media(prefers-reduced-motion:reduce){body.esl-design .esl-logo,body.esl-design .portrait .esl-animation{animation:none}}
 </style>
+<script>document.documentElement.classList.add('intro-v2-preview')</script>
 </head>
 <body class="intro-active admin-menu-hidden peny-design">
 <div id="intro-screen" role="status" aria-label="Loading Jhal Rvin's portfolio">
 <div class="intro-content">
 <div class="intro-orbit" aria-hidden="true"></div>
 <img class="intro-logo" src="/Jhal_Rvin_Kawaii_Portfolio_Logo-removebg-preview.png" alt="Jhal Rvin Kawaii Portfolio logo">
+<div class="intro-progress" aria-hidden="true"></div>
+</div>
+<div class="intro-content intro-v2-content" aria-hidden="true">
+<div class="intro-v2-stage">
+<img class="intro-v2-image intro-v2-left" src="/Cute_JR_Crowned_Code_Logo-removebg-preview.png" alt="">
+<img class="intro-v2-image intro-v2-center" src="/images/jrpennylogo.jpg" alt="">
+<img class="intro-v2-image intro-v2-right" src="/images/jrlogoesl.png" alt="">
+<img class="intro-v2-image intro-v2-final" src="/images/jrporfoliologo.jpg" alt="Jhal Rvin Portfolio">
+</div>
 <div class="intro-progress" aria-hidden="true"></div>
 </div>
 </div>
@@ -527,11 +554,15 @@ window.addEventListener('scroll',animateSkillBarsIfVisible,{passive:true});
 animateSkillBarsIfVisible()
 }
 }
-const intro=document.getElementById('intro-screen'),introLogo=intro.querySelector('.intro-logo');
-const introStarted=performance.now(),introMinDuration=window.matchMedia('(prefers-reduced-motion: reduce)').matches?450:2500;
+const intro=document.getElementById('intro-screen');
+const introV2=true;
+const prefersReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const introStarted=performance.now(),introMinDuration=introV2?(prefersReducedMotion?600:4500):(prefersReducedMotion?450:2500);
 let introDismissed=false,introFallback;
 function dismissIntro(){if(introDismissed)return;introDismissed=true;window.clearTimeout(introFallback);intro.classList.add('is-hidden');document.body.classList.remove('intro-active');window.setTimeout(()=>intro.remove(),500)}
-const introLogoReady=introLogo.complete?Promise.resolve():new Promise(resolve=>{introLogo.addEventListener('load',resolve,{once:true});introLogo.addEventListener('error',resolve,{once:true})});
+const introImages=Array.from(intro.querySelectorAll(introV2?'.intro-v2-image':'.intro-logo'));
+const introImagesReady=Promise.all(introImages.map(image=>image.complete?Promise.resolve():new Promise(resolve=>{image.addEventListener('load',resolve,{once:true});image.addEventListener('error',resolve,{once:true})})));
+if(introV2)window.setTimeout(()=>document.documentElement.classList.add('intro-v2-green'),prefersReducedMotion?0:1400);
 introFallback=window.setTimeout(dismissIntro,8000);
 let editing=false,changed=false;
 const DRAFT_DB='portfolio-admin',DRAFT_STORE='drafts',DRAFT_KEY='portfolio';
@@ -568,6 +599,7 @@ const bundledImages={
 };
 return bundledImages[image]||'/_blob/'+image
 };
+const assetUrl=path=>location.protocol==='file:'?new URL(path.replace(/^\/+/,''),document.baseURI).href:path;
 const projectLinks=[
 {url:'https://meowram-online.vercel.app/',label:'Visit the game'},
 {url:'https://pennyios.vercel.app/',label:'Visit the web app'},
@@ -609,6 +641,7 @@ penyAnimation.className='peny-animation';
 penyAnimation.dataset.src='/pennylogo-transparent.webp';
 penyAnimation.alt='';
 penyAnimation.setAttribute('aria-hidden','true');
+if(document.body.classList.contains('peny-design'))penyAnimation.src=assetUrl(penyAnimation.dataset.src);
 const eslAnimation=document.createElement('img');
 eslAnimation.className='esl-animation';
 eslAnimation.dataset.src='/icon-512.png';
@@ -671,6 +704,7 @@ const f=document.createElement('input');f.type='file';f.accept='image/jpeg,image
 f.onchange=async()=>{const file=f.files[0];if(!file)return;if(!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)){toast('Choose a JPG, PNG, WebP, or GIF image');return}if(file.size>5e6){toast('Image is too large (max 5 MB)');return}
 try{let as=null;try{as=await window.claude.use('assets')}catch{}if(as){toast('Uploading…');const r=await as.upload(file);D.projects[i].i=r.id}else{D.projects[i].i=await readImage(file)}dirty();render();toast('Image added. Remember to save.')}catch(e){toast('Image upload failed: '+(e&&(e.code||e.message)||'unknown error'))}};f.click()}
 function doc(){const c=document.documentElement.cloneNode(true);
+c.classList.remove('intro-v2-green');
 c.querySelector('#app').innerHTML='';c.querySelector('#bar').innerHTML='';c.querySelector('#toast').textContent='';c.querySelector('#toast').className='';
 c.querySelector('body').className='admin-menu-hidden';c.querySelector('#data').textContent=JSON.stringify(D).replace(/</g,'\\u003c');
 return '<!DOCTYPE html>\n'+c.outerHTML}
@@ -683,7 +717,7 @@ projectLinks.forEach((link,index)=>{if(D.projects[index]&&(!D.projects[index].h|
 render();renderBar();observeSkillBars();
 const initialRoute=routeFromPath(location.pathname);
 if(initialRoute!=='home')navigateToRoute(initialRoute,false,false);
-Promise.all([introLogoReady,new Promise(resolve=>window.setTimeout(resolve,Math.max(0,introMinDuration-(performance.now()-introStarted))))]).then(dismissIntro)
+Promise.all([introImagesReady,new Promise(resolve=>window.setTimeout(resolve,Math.max(0,introMinDuration-(performance.now()-introStarted))))]).then(dismissIntro)
 })();
 window.addEventListener('popstate',()=>navigateToRoute(routeFromPath(location.pathname),false));
 </script>
@@ -704,10 +738,10 @@ pv.title=design==='mochi'?'View ESL design':design==='peny'?'View Mochi Island d
 nx.setAttribute('aria-label',design==='mochi'?'View Peny design':design==='esl'?'View Mochi Island design':'View ESL design');
 nx.title=design==='mochi'?'View Peny design':design==='esl'?'View Mochi Island design':'View ESL design';
 const animation=document.querySelector('.peny-animation');
-if(animation){if(design==='peny')animation.src=animation.dataset.src;
+if(animation){if(design==='peny')animation.src=assetUrl(animation.dataset.src);
 else animation.removeAttribute('src')}
 const eslAnimation=document.querySelector('.esl-animation');
-if(eslAnimation){if(design==='esl')eslAnimation.src=eslAnimation.dataset.src;
+if(eslAnimation){if(design==='esl')eslAnimation.src=assetUrl(eslAnimation.dataset.src);
 else eslAnimation.removeAttribute('src')}
 }
 function setDesign(design,direction){
