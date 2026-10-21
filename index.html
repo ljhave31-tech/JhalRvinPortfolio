@@ -104,6 +104,8 @@ h2{margin:0 0 28px;font-size:38px;color:var(--pink);font-weight:600}
 .bar{height:16px;border-radius:9px;background:var(--track);overflow:hidden}
 .bar i{display:block;height:100%;border-radius:9px;background:var(--pink2)}
 .sk .bar i{background:var(--c)}
+body:not(.esl-design):not(.skill-bars-filled) #skills .sk .bar i{width:0!important}
+.sk .bar i{transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
 .card{position:relative;background:var(--card);border-radius:24px;padding:14px 14px 22px;box-shadow:0 6px 0 var(--edge);display:flex;flex-direction:column}
 .thumb{position:relative;height:150px;border-radius:16px;display:grid;place-items:center;font-size:58px;margin-bottom:16px}.thumb img{width:104px;height:104px;object-fit:cover;border-radius:24px;box-shadow:0 4px 0 var(--edge)}.upw{position:absolute;left:8px;bottom:8px;gap:6px}.up{border:0;border-radius:12px;background:var(--solid);color:var(--pink);font:600 12px Fredoka,sans-serif;padding:4px 10px;box-shadow:0 2px 0 var(--edge);cursor:pointer}
@@ -183,7 +185,7 @@ body.design-enter-next #app>nav,body.design-enter-prev #app>nav{animation:design
 @keyframes design-enter-next{from{opacity:0;translate:18px 0}to{opacity:1;translate:0 0}}
 @keyframes design-enter-prev{from{opacity:0;translate:-18px 0}to{opacity:1;translate:0 0}}
 @keyframes design-nav-enter{from{opacity:0}to{opacity:1}}
-@media(prefers-reduced-motion:reduce){#app>:not(nav),#app>nav,#bar{transition:none!important}body.design-enter-next #app>:not(nav),body.design-enter-next #app>nav,body.design-enter-next #bar,body.design-enter-prev #app>:not(nav),body.design-enter-prev #app>nav,body.design-enter-prev #bar{animation:none!important}}
+@media(prefers-reduced-motion:reduce){#app>:not(nav),#app>nav,#bar,.sk .bar i{transition:none!important}body.design-enter-next #app>:not(nav),body.design-enter-next #app>nav,body.design-enter-next #bar,body.design-enter-prev #app>:not(nav),body.design-enter-prev #app>nav,body.design-enter-prev #bar{animation:none!important}}
 @media (max-width:640px){.side-nav{width:42px;height:42px;margin-top:-21px}.side-nav svg{width:22px;height:22px}.side-nav.prev{left:max(6px,env(safe-area-inset-left,0px))}.side-nav.next{right:max(6px,env(safe-area-inset-right,0px))}}
 
 body.peny-design{
@@ -488,6 +490,29 @@ body.esl-design nav a:focus-visible{outline-color:var(--pink)}
 let D=JSON.parse(document.getElementById('data').textContent);
 const app=document.getElementById('app'),bar=document.getElementById('bar'),toastEl=document.getElementById('toast');
 let logoTapCount=0;
+let skillBarsAnimated=false,skillBarsObserver=null;
+function animateSkillBarsIfVisible(){
+if(skillBarsAnimated||document.body.classList.contains('esl-design'))return;
+const skills=document.getElementById('skills');
+if(!skills)return;
+const bounds=skills.getBoundingClientRect();
+if(bounds.top>=innerHeight*.9||bounds.bottom<=0)return;
+skillBarsAnimated=true;
+document.body.classList.add('skill-bars-filled');
+if(skillBarsObserver)skillBarsObserver.disconnect();
+window.removeEventListener('scroll',animateSkillBarsIfVisible);
+}
+function observeSkillBars(){
+const skills=document.getElementById('skills');
+if(!skills)return;
+if('IntersectionObserver'in window){
+skillBarsObserver=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting))animateSkillBarsIfVisible()},{threshold:.01});
+skillBarsObserver.observe(skills)
+}else{
+window.addEventListener('scroll',animateSkillBarsIfVisible,{passive:true});
+animateSkillBarsIfVisible()
+}
+}
 const intro=document.getElementById('intro-screen'),introLogo=intro.querySelector('.intro-logo');
 const introStarted=performance.now(),introMinDuration=window.matchMedia('(prefers-reduced-motion: reduce)').matches?450:2500;
 let introDismissed=false,introFallback;
@@ -637,7 +662,7 @@ catch(err){toast(err&&err.code==='conflict'?'Someone else saved first. Reloading
 (async()=>{try{const saved=await readDraft();if(saved&&typeof saved==='object'&&Array.isArray(saved.skills)&&Array.isArray(saved.projects))D=saved}
 catch(e){toast('Could not load saved changes: '+(e&&e.message||'local storage unavailable'))}
 projectLinks.forEach((link,index)=>{if(D.projects[index]&&(!D.projects[index].h||D.projects[index].h==='#'))D.projects[index].h=link.url});
-render();renderBar();
+render();renderBar();observeSkillBars();
 Promise.all([introLogoReady,new Promise(resolve=>window.setTimeout(resolve,Math.max(0,introMinDuration-(performance.now()-introStarted))))]).then(dismissIntro)
 })();
 </script>
@@ -651,6 +676,7 @@ let transitionTimer=0,switching=false;
 function applyDesign(design){
 document.body.classList.toggle('peny-design',design==='peny');
 document.body.classList.toggle('esl-design',design==='esl');
+animateSkillBarsIfVisible();
 pv.disabled=false;nx.disabled=false;
 pv.setAttribute('aria-label',design==='mochi'?'View ESL design':design==='peny'?'View Mochi Island design':'View Peny design');
 pv.title=design==='mochi'?'View ESL design':design==='peny'?'View Mochi Island design':'View Peny design';
