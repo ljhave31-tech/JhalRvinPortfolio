@@ -468,6 +468,11 @@ body.esl-design nav a:focus-visible{outline-color:var(--pink)}
   body.esl-design .grid{grid-template-columns:minmax(0,1fr);gap:14px}
   body.esl-design .quests>li{grid-template-columns:minmax(0,1fr);gap:4px;padding:16px}
 }
+@media(max-width:760px){
+  body:not(.esl-design) nav ul,body.esl-design nav ul{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));width:100%;gap:0;overflow:visible}
+  body:not(.esl-design) nav li,body.esl-design nav li{min-width:0;flex:initial;text-align:center}
+  body:not(.esl-design) nav li a,body.esl-design nav li a{padding:6px 2px;font-size:clamp(11px,3.2vw,13px);text-align:center;white-space:nowrap}
+}
 @media(prefers-reduced-motion:reduce){body.esl-design .esl-logo,body.esl-design .portrait .esl-animation{animation:none}}
 </style>
 </head>
