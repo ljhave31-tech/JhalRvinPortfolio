@@ -2,7 +2,7 @@
 <html lang="en" data-theme="light" style="color-scheme: light;"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Jhal Rvin Portfolio</title>
+<title>Portfolio Admin</title>
 <link rel="icon" type="image/png" href="Cute_JR_Crowned_Code_Logo-removebg-preview.png">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&amp;display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&amp;display=swap" rel="stylesheet">
@@ -527,6 +527,11 @@ const bundledImages={
 };
 return bundledImages[image]||'/_blob/'+image
 };
+const projectLinks=[
+{url:'https://meowram-online.vercel.app/',label:'Visit the game'},
+{url:'https://pennyios.vercel.app/',label:'Visit the web app'},
+{url:'https://vercel.com/nubby-meow/teacher-schedule',label:'Visit the web app'}
+];
 const projectIcon=p=>/game|art|design/i.test(p.g)?'palette':/mobile|schedule/i.test(p.g)?'phone':'brief';
 const lvl=v=>v>=90?'Expert':v>=75?'Advanced':v>=55?'Intermediate':'Learning';
 const lk=v=>v>=90?'e':v>=75?'a':v>=55?'i':'l';
@@ -551,7 +556,7 @@ ${D.skills.map((s,i)=>`<div class="sk" data-l="${lk(s.v)}">${del('skills.'+i)}<s
 ${D.projects.map((p,i)=>`<article class="card">${del('projects.'+i)}<div class="thumb">${p.i?`<img src="${esc(projectImageSrc(p.i))}" alt="">`:icon(projectIcon(p),'project-icon')}<span class="upw ed"><button class="up" data-up="${i}">${icon('camera')} ${p.i?'Change':'Upload'} image</button>${p.i?`<button class="up" data-rmi="${i}">Remove</button>`:''}</span></div>${t('projects.'+i+'.t','h3')}${t('projects.'+i+'.d','p')}
 <div class="tags">${p.g.split(',').map(x=>x.trim()).filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join('')}</div>
 <div class="ed" style="margin:0 10px 12px;font-size:13px;color:var(--soft);display:none">Tags (comma separated):&nbsp;${t('projects.'+i+'.g')}</div>
-<a class="lnk" href="${esc(p.h)}" data-h="projects.${i}.h">View case study</a></article>`).join('')}</div>${add('projects','Add project')}</div></section>
+<a class="lnk" href="${esc(p.h)}" data-h="projects.${i}.h" target="_blank" rel="noopener noreferrer">${projectLinks[i]?.label||'Visit project'}</a></article>`).join('')}</div>${add('projects','Add project')}</div></section>
 <section id="journey"><div class="wrap"><h2>My journey</h2><ol class="quests">
 ${D.journey.map((j,i)=>`<li>${del('journey.'+i)}${t('journey.'+i+'.w','div','when')}<div>${t('journey.'+i+'.t','h3')}${t('journey.'+i+'.o','em')}${journeyDescription(j.d,i)}</div></li>`).join('')}</ol>${add('journey','Add entry')}</div></section>
 <section id="contact"><div class="wrap"><div class="panel contact">${t('contactTitle','h2')}${t('contactText','p')}
@@ -631,6 +636,7 @@ try{toast('Saving…');await writeDraft();let a=null;try{a=await window.claude.u
 catch(err){toast(err&&err.code==='conflict'?'Someone else saved first. Reloading…':'Couldn’t save: '+(err&&(err.code||err.message)||'unknown error'))}}
 (async()=>{try{const saved=await readDraft();if(saved&&typeof saved==='object'&&Array.isArray(saved.skills)&&Array.isArray(saved.projects))D=saved}
 catch(e){toast('Could not load saved changes: '+(e&&e.message||'local storage unavailable'))}
+projectLinks.forEach((link,index)=>{if(D.projects[index]&&(!D.projects[index].h||D.projects[index].h==='#'))D.projects[index].h=link.url});
 render();renderBar();
 Promise.all([introLogoReady,new Promise(resolve=>window.setTimeout(resolve,Math.max(0,introMinDuration-(performance.now()-introStarted))))]).then(dismissIntro)
 })();
